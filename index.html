@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BusinessMap Extractor — Scrape Google Maps Business Listings</title>
+  <meta name="description" content="Extract business names, addresses, phone numbers & websites from Google Maps. Export to CSV, JSON or Excel. Chrome extension for lead generation.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Satoshi:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #0b1120;
+      --paper: #f8faff;
+      --blue: #2563eb;
+      --blue-dark: #1a4fd6;
+      --blue-light: #eff4ff;
+      --blue-glow: rgba(37, 99, 235, 0.15);
+      --cyan: #06b6d4;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --slate: #475569;
+      --slate-light: #94a3b8;
+      --border: #e2e8f0;
+      --card: #ffffff;
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-body: 'Satoshi', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      background: rgba(248, 250, 255, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      padding: 14px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-body); font-weight: 900;
+      font-size: 17px; color: var(--ink); text-decoration: none;
+    }
+    .nav-icon {
+      width: 34px; height: 34px;
+      background: var(--blue); border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a {
+      font-size: 14px; font-weight: 600; color: var(--slate);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--blue); }
+    .nav-cta {
+      background: var(--blue) !important; color: #fff !important;
+      padding: 9px 20px !important; border-radius: 9px !important;
+      font-weight: 700 !important; font-size: 13px !important;
+      transition: all 0.2s !important;
+      box-shadow: 0 2px 8px var(--blue-glow) !important;
+    }
+    .nav-cta:hover { background: var(--blue-dark) !important; transform: translateY(-1px) !important; }
+
+    /* ── HERO ───────────────────────────────────────────── */
+    .hero {
+      padding: 160px 32px 100px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(37,99,235,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(6,182,212,0.06) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--blue-light); border: 1px solid #c7d8ff;
+      border-radius: 99px; padding: 6px 16px 6px 8px;
+      font-size: 13px; font-weight: 600; color: var(--blue);
+      margin-bottom: 28px;
+      animation: fadeUp 0.6s ease;
+    }
+    .hero-badge-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 0 3px rgba(16,185,129,0.2);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(42px, 6vw, 72px);
+      font-weight: 400;
+      line-height: 1.08;
+      color: var(--ink);
+      max-width: 800px; margin: 0 auto 24px;
+      animation: fadeUp 0.6s ease 0.1s both;
+    }
+    .hero h1 em {
+      font-style: italic;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 18px; color: var(--slate);
+      max-width: 540px; margin: 0 auto 40px;
+      line-height: 1.7;
+      animation: fadeUp 0.6s ease 0.2s both;
+    }
+    .hero-buttons {
+      display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+      animation: fadeUp 0.6s ease 0.3s both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: 11px;
+      font-family: var(--font-body); font-size: 15px; font-weight: 700;
+      text-decoration: none; cursor: pointer; border: none;
+      transition: all 0.25s;
+    }
+    .btn-primary {
+      background: var(--blue); color: #fff;
+      box-shadow: 0 4px 16px var(--blue-glow), 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .btn-primary:hover {
+      background: var(--blue-dark); transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(37,99,235,0.25);
+    }
+    .btn-secondary {
+      background: var(--card); color: var(--ink);
+      border: 1.5px solid var(--border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .btn-secondary:hover {
+      border-color: var(--blue); color: var(--blue);
+      transform: translateY(-2px);
+    }
+
+    .hero-proof {
+      margin-top: 48px; font-size: 13px; color: var(--slate-light);
+      display: flex; align-items: center; justify-content: center; gap: 20px;
+      animation: fadeUp 0.6s ease 0.4s both;
+    }
+    .hero-proof span { display: flex; align-items: center; gap: 5px; }
+
+    /* ── FEATURES ───────────────────────────────────────── */
+    .section { padding: 100px 32px; max-width: 1100px; margin: 0 auto; }
+    .section-tag {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 700;
+      color: var(--blue); text-transform: uppercase; letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: var(--font-display); font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.15; margin-bottom: 20px;
+    }
+    .section-desc {
+      font-size: 17px; color: var(--slate); max-width: 560px; line-height: 1.7;
+      margin-bottom: 48px;
+    }
+
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px;
+      transition: all 0.3s;
+    }
+    .feature-card:hover {
+      border-color: var(--blue);
+      box-shadow: 0 8px 32px var(--blue-glow);
+      transform: translateY(-4px);
+    }
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 11px; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 16px;
+    }
+    .feature-card h3 {
+      font-size: 16px; font-weight: 800; margin-bottom: 8px;
+    }
+    .feature-card p {
+      font-size: 14px; color: var(--slate); line-height: 1.6;
+    }
+
+    /* ── HOW IT WORKS ───────────────────────────────────── */
+    .steps-bg { background: var(--ink); color: #fff; }
+    .steps-bg .section-tag { color: var(--cyan); }
+    .steps-bg .section-desc { color: #94a3b8; }
+
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 32px; counter-reset: step;
+    }
+    .step-card {
+      position: relative; padding: 32px 24px 24px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      counter-increment: step;
+    }
+    .step-card::before {
+      content: counter(step);
+      position: absolute; top: -18px; left: 24px;
+      width: 36px; height: 36px;
+      background: var(--blue); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 14px; font-weight: 700;
+      color: #fff;
+    }
+    .step-card h3 { font-size: 17px; font-weight: 800; margin-bottom: 8px; margin-top: 8px; }
+    .step-card p { font-size: 14px; color: #94a3b8; line-height: 1.6; }
+
+    /* ── PRICING ────────────────────────────────────────── */
+    .pricing-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 24px; max-width: 740px; margin: 0 auto;
+    }
+    .price-card {
+      background: var(--card); border: 2px solid var(--border);
+      border-radius: 20px; padding: 36px 32px;
+      position: relative; transition: all 0.3s;
+    }
+    .price-card:hover { transform: translateY(-4px); }
+    .price-card.featured {
+      border-color: var(--blue);
+      box-shadow: 0 8px 40px var(--blue-glow);
+    }
+    .price-tag {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: var(--blue); color: #fff;
+      font-size: 11px; font-weight: 800;
+      padding: 4px 16px; border-radius: 99px;
+      letter-spacing: 0.5px;
+    }
+    .price-name { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+    .price-amount {
+      font-family: var(--font-display);
+      font-size: 48px; line-height: 1; margin-bottom: 4px;
+    }
+    .price-amount span { font-size: 16px; color: var(--slate); }
+    .price-desc { font-size: 13px; color: var(--slate-light); margin-bottom: 24px; }
+    .price-features { list-style: none; margin-bottom: 28px; }
+    .price-features li {
+      font-size: 14px; color: var(--slate); padding: 6px 0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .price-features li::before { content: '✓'; color: var(--emerald); font-weight: 800; }
+    .price-features li.locked::before { content: '✕'; color: var(--slate-light); }
+    .price-features li.locked { color: var(--slate-light); }
+
+    .price-btn {
+      display: block; width: 100%; text-align: center;
+      padding: 13px; border-radius: 10px;
+      font-family: var(--font-body); font-size: 14px; font-weight: 700;
+      text-decoration: none; transition: all 0.2s;
+    }
+    .price-btn-outline {
+      background: transparent; color: var(--ink);
+      border: 1.5px solid var(--border);
+    }
+    .price-btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+    .price-btn-fill {
+      background: var(--blue); color: #fff; border: none;
+      box-shadow: 0 2px 8px var(--blue-glow);
+    }
+    .price-btn-fill:hover { background: var(--blue-dark); transform: translateY(-1px); }
+
+    /* ── FAQ ─────────────────────────────────────────────── */
+    .faq-list { max-width: 640px; margin: 0 auto; }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+    }
+    .faq-q {
+      font-size: 16px; font-weight: 700; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .faq-q::after { content: '+'; font-size: 20px; color: var(--slate-light); }
+    .faq-a {
+      font-size: 14px; color: var(--slate); line-height: 1.7;
+      max-height: 0; overflow: hidden; transition: all 0.3s;
+      padding-top: 0;
+    }
+    .faq-item.open .faq-a { max-height: 200px; padding-top: 12px; }
+    .faq-item.open .faq-q::after { content: '−'; }
+
+    /* ── FOOTER ──────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 32px;
+      text-align: center;
+      font-size: 13px; color: var(--slate-light);
+    }
+    footer a { color: var(--blue); text-decoration: none; }
+
+    /* ── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .features-grid, .steps-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 380px; }
+      .nav-links a:not(.nav-cta) { display: none; }
+      .hero { padding: 130px 20px 60px; }
+      .section { padding: 60px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="#" class="nav-brand">
+        <div class="nav-icon">🗺️</div>
+        BusinessMap Extractor
+      </a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a href="YOUR_CHROME_STORE_LINK" class="nav-cta">Install Free →</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      Chrome Extension — Free to install
+    </div>
+    <h1>Scrape <em>Google Maps</em> business listings in seconds</h1>
+    <p class="hero-sub">Extract names, addresses, phone numbers & websites from any Google Maps search. Export to CSV, JSON, or Excel instantly.</p>
+    <div class="hero-buttons">
+      <a href="YOUR_CHROME_STORE_LINK" class="btn btn-primary">🗺️ Install Extension — Free</a>
+      <a href="#how" class="btn btn-secondary">See how it works ↓</a>
+    </div>
+    <div class="hero-proof">
+      <span>⭐⭐⭐⭐⭐ 5.0 rating</span>
+      <span>📦 Export to CSV, JSON, Excel</span>
+      <span>🔒 Secure & private</span>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <div class="section-tag">Features</div>
+    <h2 class="section-title">Everything you need for<br>lead generation</h2>
+    <p class="section-desc">BusinessMap Extractor pulls structured data from Google Maps results so you can build prospect lists in minutes, not hours.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#eff4ff;">🏢</div>
+        <h3>Business Names</h3>
+        <p>Automatically captures the full business name from every Google Maps listing.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#ecfdf5;">📍</div>
+        <h3>Full Addresses</h3>
+        <p>Street address, city, state and postcode — ready for mail campaigns or route planning.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fff7ed;">📞</div>
+        <h3>Phone Numbers</h3>
+        <p>Direct phone and mobile numbers for every listing. Available on the Pro plan.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#f0fdf4;">🌐</div>
+        <h3>Website URLs</h3>
+        <p>Get the website link for each business — perfect for SEO analysis or outreach.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fefce8;">⭐</div>
+        <h3>Ratings & Reviews</h3>
+        <p>Star ratings and review counts help you identify the best (or most underserved) businesses.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#f0f4ff;">📊</div>
+        <h3>Export Anywhere</h3>
+        <p>Download results as CSV, JSON, or Excel. Ready for your CRM, spreadsheet, or database.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="steps-bg" id="how">
+    <div class="section" style="padding-top:100px;padding-bottom:100px;">
+      <div class="section-tag">How it works</div>
+      <h2 class="section-title" style="color:#fff;">Three steps to your<br>lead list</h2>
+      <p class="section-desc">No signup required. Install the extension and start scraping in under a minute.</p>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <h3>Search Google Maps</h3>
+          <p>Search for any business type and location — "plumbers Melbourne", "cafes Sydney", "dentists Brisbane".</p>
+        </div>
+        <div class="step-card">
+          <h3>Click & scrape</h3>
+          <p>Open the extension, set how many listings you want (up to 200), and hit Start. It runs automatically.</p>
+        </div>
+        <div class="step-card">
+          <h3>Export your leads</h3>
+          <p>Download your results as CSV, JSON, or Excel. Import directly into your CRM or spreadsheet.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="section" id="pricing">
+    <div style="text-align:center;">
+      <div class="section-tag">Pricing</div>
+      <h2 class="section-title">Simple, transparent pricing</h2>
+      <p class="section-desc" style="margin:0 auto 48px;">Start free. Upgrade when you need phone numbers.</p>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">Free</div>
+        <div class="price-amount">$0</div>
+        <div class="price-desc">Free forever</div>
+        <ul class="price-features">
+          <li>Up to 200 listings per session</li>
+          <li>Business names & addresses</li>
+          <li>Websites, ratings & categories</li>
+          <li>CSV, JSON & Excel export</li>
+          <li class="locked">Phone numbers</li>
+        </ul>
+        <a href="YOUR_CHROME_STORE_LINK" class="price-btn price-btn-outline">Install Free</a>
+      </div>
+      <div class="price-card featured">
+        <div class="price-tag">MOST POPULAR</div>
+        <div class="price-name">Pro</div>
+        <div class="price-amount">$9.99 <span>AUD/mo</span></div>
+        <div class="price-desc">Cancel anytime</div>
+        <ul class="price-features">
+          <li>Everything in Free</li>
+          <li>Phone numbers revealed</li>
+          <li>Priority support</li>
+          <li>Unlimited sessions</li>
+        </ul>
+        <a href="YOUR_STRIPE_PAYMENT_LINK" class="price-btn price-btn-fill">Get Pro →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div style="text-align:center;">
+      <div class="section-tag">FAQ</div>
+      <h2 class="section-title">Questions & answers</h2>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">How does the extension work?</div>
+        <div class="faq-a">BusinessMap Extractor reads the Google Maps search results page and collects business data from each listing. It clicks through each result to get the full details including address, phone, and website.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is the Free plan really free?</div>
+        <div class="faq-a">Yes! The Free plan gives you full access to business names, addresses, websites, ratings, and categories with no limits. The only feature reserved for Pro is phone numbers.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How do I get my Pro license key?</div>
+        <div class="faq-a">After subscribing, we email your license key instantly. Open the extension, click "Free Plan", paste your key, and click Activate. That's it.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I cancel my subscription?</div>
+        <div class="faq-a">Yes, cancel anytime from inside the extension (click Pro Active → Manage Subscription) or email us. No lock-in, no questions asked.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What formats can I export to?</div>
+        <div class="faq-a">CSV, JSON, and Excel (XLSX). All formats are available on both Free and Pro plans.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How many listings can I scrape at once?</div>
+        <div class="faq-a">Up to 200 per session. For larger volumes, simply run multiple sessions with different searches.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section style="text-align:center;padding:80px 32px 100px;">
+    <h2 style="font-family:var(--font-display);font-size:clamp(32px,4vw,52px);margin-bottom:16px;">Ready to build your lead list?</h2>
+    <p style="font-size:17px;color:var(--slate);margin-bottom:32px;">Install for free. No signup needed. Start scraping in seconds.</p>
+    <a href="YOUR_CHROME_STORE_LINK" class="btn btn-primary" style="font-size:17px;padding:16px 36px;">🗺️ Install BusinessMap Extractor — Free</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2024 BusinessMap Extractor · <a href="privacy.html">Privacy Policy</a> · <a href="mailto:kaplan.m87@gmail.com">Support</a></p>
+  </footer>
+
+  <script>
+    document.querySelectorAll('.faq-q').forEach(function(q) {
+      q.addEventListener('click', function() {
+        this.parentElement.classList.toggle('open');
+      });
+    });
+  </script>
+</body>
+</html>
