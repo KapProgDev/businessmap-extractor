@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kapprogdev.github.io/businessmap-extractor/sitemap.xml

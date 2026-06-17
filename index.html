@@ -3,8 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BusinessMap Extractor — Scrape Google Maps Business Listings</title>
-  <meta name="description" content="Extract business names, addresses, phone numbers & websites from Google Maps. Export to CSV, JSON or Excel. Chrome extension for lead generation.">
+
+  <!-- Primary SEO -->
+  <title>BusinessMap Extractor — Extract Google Maps Business Listings | Chrome Extension</title>
+  <meta name="description" content="Free Chrome extension to extract business names, addresses, phone numbers and websites from Google Maps. Export leads to CSV, JSON or Excel instantly. Perfect for lead generation and market research.">
+  <meta name="keywords" content="google maps extractor, business listing extractor, google maps leads, extract google maps data, google maps to excel, google maps to csv, lead generation tool, local business finder, google maps chrome extension, business data extraction">
+  <meta name="author" content="BusinessMap Extractor">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://kapprogdev.github.io/businessmap-extractor/">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://kapprogdev.github.io/businessmap-extractor/">
+  <meta property="og:title" content="BusinessMap Extractor — Extract Google Maps Business Listings">
+  <meta property="og:description" content="Free Chrome extension to extract business names, addresses, phone numbers and websites from Google Maps. Export to CSV, JSON or Excel.">
+  <meta property="og:image" content="https://kapprogdev.github.io/businessmap-extractor/og-image.png">
+  <meta property="og:site_name" content="BusinessMap Extractor">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="BusinessMap Extractor — Extract Google Maps Business Listings">
+  <meta name="twitter:description" content="Free Chrome extension to extract business listings from Google Maps. Export to CSV, JSON or Excel.">
+  <meta name="twitter:image" content="https://kapprogdev.github.io/businessmap-extractor/og-image.png">
+
+  <!-- Structured Data - Software Application -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "BusinessMap Extractor",
+    "applicationCategory": "BrowserApplication",
+    "operatingSystem": "Chrome",
+    "description": "Extract business names, addresses, phone numbers and websites from Google Maps search results. Export to CSV, JSON or Excel.",
+    "url": "https://kapprogdev.github.io/businessmap-extractor/",
+    "downloadUrl": "https://chromewebstore.google.com/detail/gegejjjhoodgjjgimgjdhcabilhhdlee",
+    "softwareVersion": "1.2.0",
+    "offers": [
+      {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "AUD",
+        "name": "Free Plan"
+      },
+      {
+        "@type": "Offer",
+        "price": "9.99",
+        "priceCurrency": "AUD",
+        "name": "Pro Plan",
+        "priceValidUntil": "2027-12-31"
+      }
+    ],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5",
+      "ratingCount": "1"
+    }
+  }
+  </script>
+
+  <!-- Structured Data - FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How does BusinessMap Extractor work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "BusinessMap Extractor reads Google Maps search results and collects business data from each listing including name, address, phone number, website, and ratings. Simply search on Google Maps, click the extension, and export your results."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is BusinessMap Extractor free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, the Free plan gives you access to business names, addresses, websites, ratings, and categories with no limits. Phone numbers are available on the Pro plan for $9.99 AUD per month."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What formats can I export to?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You can export your extracted business listings as CSV, JSON, or Excel (XLSX) files. All formats are available on both Free and Pro plans."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How many listings can I extract at once?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You can extract up to 200 listings per session. For larger volumes, simply run multiple sessions with different searches."
+        }
+      }
+    ]
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Satoshi:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
@@ -347,9 +445,9 @@
       <div class="nav-links">
         <a href="#features">Features</a>
         <a href="#how">How it works</a>
-        <a href="https://chromewebstore.google.com/detail/gegejjjhoodgjjgimgjdhcabilhhdlee">Pricing</a>
+        <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
-        <a href="https://chromewebstore.google.com/detail/gegejjjhoodgjjgimgjdhcabilhhdlee" class="nav-cta">Install Free →</a>
+        <a href="YOUR_CHROME_STORE_LINK" class="nav-cta">Install Free →</a>
       </div>
     </div>
   </nav>
@@ -363,7 +461,7 @@
     <h1>Scrape <em>Google Maps</em> business listings in seconds</h1>
     <p class="hero-sub">Extract names, addresses, phone numbers & websites from any Google Maps search. Export to CSV, JSON, or Excel instantly.</p>
     <div class="hero-buttons">
-      <a href="https://chromewebstore.google.com/detail/gegejjjhoodgjjgimgjdhcabilhhdlee" class="btn btn-primary">🗺️ Install Extension — Free</a>
+      <a href="YOUR_CHROME_STORE_LINK" class="btn btn-primary">🗺️ Install Extension — Free</a>
       <a href="#how" class="btn btn-secondary">See how it works ↓</a>
     </div>
     <div class="hero-proof">
@@ -457,7 +555,7 @@
           <li>CSV, JSON & Excel export</li>
           <li class="locked">Phone numbers</li>
         </ul>
-        <a href="https://chromewebstore.google.com/detail/gegejjjhoodgjjgimgjdhcabilhhdlee" class="price-btn price-btn-outline">Install Free</a>
+        <a href="YOUR_CHROME_STORE_LINK" class="price-btn price-btn-outline">Install Free</a>
       </div>
       <div class="price-card featured">
         <div class="price-tag">MOST POPULAR</div>
@@ -470,7 +568,7 @@
           <li>Priority support</li>
           <li>Unlimited sessions</li>
         </ul>
-        <a href="https://buy.stripe.com/fZu3cvgMa1WL8Cxdffak006" class="price-btn price-btn-fill">Get Pro →</a>
+        <a href="YOUR_STRIPE_PAYMENT_LINK" class="price-btn price-btn-fill">Get Pro →</a>
       </div>
     </div>
   </section>
@@ -514,7 +612,7 @@
   <section style="text-align:center;padding:80px 32px 100px;">
     <h2 style="font-family:var(--font-display);font-size:clamp(32px,4vw,52px);margin-bottom:16px;">Ready to build your lead list?</h2>
     <p style="font-size:17px;color:var(--slate);margin-bottom:32px;">Install for free. No signup needed. Start scraping in seconds.</p>
-    <a href="https://chromewebstore.google.com/detail/gegejjjhoodgjjgimgjdhcabilhhdlee" class="btn btn-primary" style="font-size:17px;padding:16px 36px;">🗺️ Install BusinessMap Extractor — Free</a>
+    <a href="YOUR_CHROME_STORE_LINK" class="btn btn-primary" style="font-size:17px;padding:16px 36px;">🗺️ Install BusinessMap Extractor — Free</a>
   </section>
 
   <!-- FOOTER -->
